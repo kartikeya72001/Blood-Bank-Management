@@ -60,10 +60,11 @@ void EndCall(){
 
 void Donate(){
     cout<<TAB<<"|--------------------------------------|"<<endl;
-    cout<<TAB<<"Donate"<<endl;
-    cout<<TAB<<"|--------------------------------------|"<<endl;
+    cout<<TAB<<"\t\t"<<"Donate"<<endl;
+    cout<<TAB<<"|--------------------------------------|"<<endl<<endl;
     Blood b;
     Person p;
+    cout<<TAB<<"|--------------------------------------|"<<endl;
     cout<<TAB<<"Enter Personal Details\n";
     cout<<TAB<<"FIRST NAME: ";
     cin>>p.fname;
@@ -104,10 +105,12 @@ quantity:
     blood<<" "<<p.type<<" "<<p.quantity<<" "<<p.date<<"\n";
     blood.close();
 
-    cout<<endl<<TAB<<"Blood Record Added Successfully";
+    cout<<endl<<TAB<<"Blood Record Added Successfully\n";
+    cout<<TAB<<"|--------------------------------------|"<<endl;
     EndCall();
 }
 void Display(){
+    cout<<TAB<<"|--------------------------------------|"<<endl;
     fstream patient;
     Person p;
     patient.open("PatientDetails.txt", ios::in);
@@ -128,9 +131,11 @@ void Display(){
             patient >> p.fname >> p.lname >> p.age >> p.type >> p.quantity >> p.date;
         }
     }
+    cout<<TAB<<"|--------------------------------------|"<<endl;
     EndCall();
 }
 void CheckBlood(){
+    cout<<TAB<<"|--------------------------------------|"<<endl;
     fstream blood;
     unordered_map<string,int> bloodMap;
     Blood b;
@@ -151,10 +156,12 @@ void CheckBlood(){
     for(auto it:bloodMap){
         cout<<TAB<<it.first<<" --> "<<it.second<<"(mL)"<<endl;
     }
+    cout<<TAB<<"|--------------------------------------|"<<endl;
     EndCall();
 }
 
 void SearchPatient(){
+    cout<<TAB<<"|--------------------------------------|"<<endl;
     fstream patient;
     unordered_map<int,Person> PatientMap;
     patient.open("PatientDetails.txt", ios::in);
@@ -194,6 +201,7 @@ void SearchPatient(){
     if(!found){
         cout<<TAB<<"ERROR FINDING PATIENT RECORDS\n";
     }
+    cout<<TAB<<"|--------------------------------------|"<<endl;
     EndCall();
 }
 
@@ -205,7 +213,7 @@ int main(){
         if(wrongChoice)
             cout<<TAB<<"Invalid Choice Try Again\n\n";
         cout<<TAB<<"|--------------------------------------|"<<endl;
-        cout<<TAB<<"BLOOD BANK"<<endl;
+        cout<<TAB<<"\t\t"<<"BLOOD BANK"<<endl;
         cout<<TAB<<"Choose from the following Options"<<endl;
         cout<<TAB<<"1. Donate"<<endl;
         cout<<TAB<<"2. Check Blood Availability"<<endl;
