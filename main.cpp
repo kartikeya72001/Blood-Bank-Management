@@ -3,12 +3,14 @@
 #include <stdlib.h>
 #include <cstdlib>
 #include <conio.h>
-#include <string>
+#include <cstring>
 #include <regex>
 #include <stdio.h>
 #include <windows.h>
 #include <ctime>
+#include <unistd.h>
 #include <unordered_set>
+#include <unordered_map>
 using namespace std;
 #pragma comment(lib, "user32")
 
@@ -31,6 +33,30 @@ public:
 };
 
 unordered_set<string> bloodType({"O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"});
+
+void Loading(){
+    int i = 0;
+ 	char load[21];
+ 	while(i < 20) {
+ 		system("cls");
+ 		load[i++] = '#';
+ 		load[i] = '\0';
+		printf("\n\nLOADING [%-21s]", load);
+ 		usleep(020000);
+ 	}
+    system("cls");
+}
+
+void EndCall(){
+    cout<<endl<<endl;
+    char pos;
+    cout<<TAB<<"0->Main Menu\n"<<TAB<<"1->exit Application\n";
+    cout<<TAB;
+    cin>>pos;
+    if(pos == '1')
+        exit(0);
+    system("cls");
+}
 
 void Donate(){
     cout<<TAB<<"|--------------------------------------|"<<endl;
@@ -78,24 +104,102 @@ quantity:
     blood<<" "<<p.type<<" "<<p.quantity<<" "<<p.date<<"\n";
     blood.close();
 
-    cout<<TAB<<"Blood Record Added Successfully"<<endl;
-    char pos;
-    cout<<TAB<<"0->Main Menu\n"<<TAB<<"1->exit Application\n";
-    cout<<TAB;
-    cin>>pos;
-    if(pos == '1')
-        exit(0);
-    system("cls");
+    cout<<endl<<TAB<<"Blood Record Added Successfully";
+    EndCall();
 }
 void Display(){
-
+    fstream patient;
+    Person p;
+    patient.open("PatientDetails.txt", ios::in);
+    int count = 1;
+    if(!patient){
+        cout<<TAB<<"No data is Present\n";
+        patient.close();
+    }
+    else{
+        patient >> p.fname >> p.lname >> p.age >> p.type >> p.quantity >> p.date;
+        while(!patient.eof()){
+            cout<<TAB<<"Patient Number: "<<count++<<endl;
+            cout<<TAB<<"NAME: "<<p.fname<<" "<<p.lname<<endl;
+            cout<<TAB<<"AGE: "<<p.age<<endl;
+            cout<<TAB<<"BLOOD TYPE: "<<p.type<<endl;
+            cout<<TAB<<"QUANTITY: "<<p.quantity<<"(mL)"<<endl;
+            cout<<TAB<<"DATE OF DONATION: "<<p.date<<endl<<endl<<endl;
+            patient >> p.fname >> p.lname >> p.age >> p.type >> p.quantity >> p.date;
+        }
+    }
+    EndCall();
 }
-void Check(){
+void CheckBlood(){
+    fstream blood;
+    unordered_map<string,int> bloodMap;
+    Blood b;
+    blood.open("BloodDetails.txt", ios::in);
+    if(!blood){
+        cout<<TAB<<"ERROR OPENING/FINDING RECORDS....TRY AGAIN LATER\n";
+        blood.close();
+    }
+    else{
+        blood >> b.type >> b.quantity >> b.date;
+        while(!blood.eof()){
+            bloodMap[b.type] += b.quantity;
+            blood >> b.type >> b.quantity >> b.date;
+        }
+    }
+    blood.close();
+    cout<<TAB<<"Blood Type"<<"   "<<"Quantity"<<endl;
+    for(auto it:bloodMap){
+        cout<<TAB<<it.first<<" --> "<<it.second<<"(mL)"<<endl;
+    }
+    EndCall();
+}
 
+void SearchPatient(){
+    fstream patient;
+    unordered_map<int,Person> PatientMap;
+    patient.open("PatientDetails.txt", ios::in);
+    if(!patient){
+        cout<<TAB<<"ERROR OPENING/FINDING RECORDS....TRY AGAIN LATER\n";
+        patient.close();
+    }
+    else{
+        Person p;
+        patient >> p.fname >> p.lname >> p.age >> p.type >> p.quantity >> p.date;
+        while(!patient.eof()){
+            int id = p.date;
+            PatientMap.insert({id,p});
+            patient >> p.fname >> p.lname >> p.age >> p.type >> p.quantity >> p.date;
+        }
+    }
+    patient.close();
+    string name;
+    cout<<TAB<<"Enter the FIRST NAME of the Person: ";
+    cin>>name;
+    cout<<endl;
+    transform(name.begin(),name.end(),name.begin(),::tolower);
+    bool found = false;
+    for(auto it:PatientMap){
+        string mapName = it.second.fname;
+        transform(mapName.begin(),mapName.end(),mapName.begin(),::tolower);
+        if(mapName == name){
+            found = true;
+            cout<<TAB<<"NAME: "<<it.second.fname<<" "<<it.second.lname<<endl;
+            cout<<TAB<<"AGE: "<<it.second.age<<endl;
+            cout<<TAB<<"BLOOD TYPE: "<<it.second.type<<endl;
+            cout<<TAB<<"QUANTITY: "<<it.second.quantity<<endl;
+            cout<<TAB<<"DATE of DONATION: "<<it.second.date<<endl;
+        }
+        cout<<endl;
+    }
+    if(!found){
+        cout<<TAB<<"ERROR FINDING PATIENT RECORDS\n";
+    }
+    EndCall();
 }
 
 int main(){
     ::SendMessage(::GetConsoleWindow(), WM_SYSKEYDOWN, VK_RETURN, 0x20000000);
+    // Loading();
     bool wrongChoice = false;
     while(true){
         if(wrongChoice)
@@ -104,9 +208,10 @@ int main(){
         cout<<TAB<<"BLOOD BANK"<<endl;
         cout<<TAB<<"Choose from the following Options"<<endl;
         cout<<TAB<<"1. Donate"<<endl;
-        cout<<TAB<<"2. Check"<<endl;
-        cout<<TAB<<"3. Display"<<endl;
-        cout<<TAB<<"4. Quit"<<endl;
+        cout<<TAB<<"2. Check Blood Availability"<<endl;
+        cout<<TAB<<"3. Search Patient"<<endl;
+        cout<<TAB<<"4. Display"<<endl;
+        cout<<TAB<<"5. Quit"<<endl;
         cout<<TAB<<"|--------------------------------------|"<<endl;
         char opt;
         cout<<TAB;
@@ -116,12 +221,15 @@ int main(){
                     Donate();
                     break;
             case '2': system("cls");
-                    Check();
+                    CheckBlood();
                     break;
             case '3': system("cls");
+                    SearchPatient();
+                    break;
+            case '4': system("cls");
                     Display();
                     break;
-            case '4': return 0;
+            case '5': return 0;
             default: wrongChoice = true;
                     system("cls");
                     break;
