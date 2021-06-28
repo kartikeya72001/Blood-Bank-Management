@@ -51,7 +51,7 @@ void EndCall(){
     cout << endl
          << endl;
     char pos;
-    cout << TAB << "0->Main Menu\n"
+    cout << TAB << "0->Go Back\n"
          << TAB << "1->exit Application\n";
     cout << TAB;
     cin >> pos;
@@ -132,9 +132,7 @@ void Display(){
             cout << TAB << "AGE: " << p.age << endl;
             cout << TAB << "BLOOD TYPE: " << p.type << endl;
             cout << TAB << "QUANTITY: " << p.quantity << "(mL)" << endl;
-            cout << TAB << "Pid " << p.Pid << endl
-                 << endl
-                 << endl;
+            cout << TAB << "Pid " << p.Pid << endl << endl << endl;
             patient >> p.fname >> p.lname >> p.age >> p.type >> p.quantity >> p.Pid;
         }
     }
@@ -214,9 +212,47 @@ void SearchPatient(){
     EndCall();
 }
 
-void Modify()
-{
-
+void Login(){
+    cout << TAB << "|--------------------------------------|" << endl;
+    cout << TAB <<"Enter LOGIN ID"<<endl;
+    int id;
+    cout<<TAB;
+    cin>>id;
+    fstream patient;
+    unordered_map<int, Person> PatientMap;
+    patient.open("PatientDetails.txt", ios::in);
+    if (!patient){
+        cout << TAB << "ERROR OPENING/FINDING RECORDS....TRY AGAIN LATER\n";
+        patient.close();
+    }
+    else{
+        Person p;
+        patient >> p.fname >> p.lname >> p.age >> p.type >> p.quantity >> p.Pid;
+        while (!patient.eof()){
+            int id = p.Pid;
+            PatientMap.insert({id, p});
+            patient >> p.fname >> p.lname >> p.age >> p.type >> p.quantity >> p.Pid;
+        }
+    }
+    patient.close();
+    bool found = false;
+    for (auto it : PatientMap){
+        int mapId = it.first;
+        if (mapId == id){
+            found = true;
+            cout << TAB << "NAME: " << it.second.fname << " " << it.second.lname << endl;
+            cout << TAB << "AGE: " << it.second.age << endl;
+            cout << TAB << "BLOOD TYPE: " << it.second.type << endl;
+            cout << TAB << "QUANTITY: " << it.second.quantity << endl;
+            cout << TAB << "Pid: " << it.second.Pid << endl;
+        }
+        cout << endl;
+    }
+    if (!found){
+        cout << TAB << "ERROR FINDING PATIENT RECORDS\n";
+    }
+    cout << TAB << "|--------------------------------------|" << endl;
+    EndCall();
 }
 
 void Admin(){
@@ -231,7 +267,7 @@ void Admin(){
         cout << TAB << "1. Check Blood Availability" << endl;
         cout << TAB << "2. Search Patient" << endl;
         cout << TAB << "3. Display" << endl;
-        cout << TAB << "4. Quit" << endl;
+        cout << TAB << "4. Main Menu" << endl;
         cout << TAB << "|--------------------------------------|" << endl;
         char opt;
         cout << TAB;
@@ -262,6 +298,10 @@ void Admin(){
 }
 
 void Patient(){
+    cout << TAB << "|--------------------------------------|" << endl;
+    cout << TAB <<"\t\t"<<"PATIENT LOGIN"<<endl;
+    cout << TAB << "|--------------------------------------|" << endl;
+    cout<<endl;
     bool wrongChoice = false;
     while (true){
         if (wrongChoice)
@@ -271,8 +311,8 @@ void Patient(){
              << "BLOOD BANK" << endl;
         cout << TAB << "Choose from the following Options" << endl;
         cout << TAB << "1. Donate" << endl;
-        cout << TAB << "2. Modify Details" << endl;
-        cout << TAB << "3. Quit" << endl;
+        cout << TAB << "2. Login" << endl;
+        cout << TAB << "3. Main Menu" << endl;
         cout << TAB << "|--------------------------------------|" << endl;
         char opt;
         cout << TAB;
@@ -284,7 +324,7 @@ void Patient(){
             break;
         case '2':
             system("cls");
-            Modify();
+            Login();
             break;
         case '3':
             system("cls");
@@ -309,7 +349,7 @@ int main(int argc, char const *argv[]){
         cout << TAB << "\t\t"
              << "BLOOD BANK" << endl;
         cout << TAB << "Choose from the following Options" << endl;
-        cout << TAB << "1.Admin Login" << endl;
+        cout << TAB << "1. Admin Login" << endl;
         cout << TAB << "2. Patient Login" << endl;
         cout << TAB << "3. Quit" << endl;
         cout << TAB << "|--------------------------------------|" << endl;
