@@ -20,7 +20,7 @@ class Blood{
 public:
     string type;
     int quantity;
-    time_t date;
+    time_t Pid;
 };
 
 class Person{
@@ -29,7 +29,7 @@ public:
     int age;
     string type;
     int quantity;
-    time_t date;
+    time_t Pid;
 };
 
 unordered_set<string> bloodType({"O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"});
@@ -91,18 +91,18 @@ quantity:
         cout<<"\r\033[A"<<TAB<<"Enter a valid Blood  Volume"<<endl;
         goto quantity;
     }
-    p.date = time(0);
+    p.Pid = time(0);
     b.type = p.type;
     b.quantity = p.quantity;
-    b.date = p.date;
+    b.Pid = p.Pid;
 
     // Blood Recording to the File
     fstream patient, blood;
     patient.open("PatientDetails.txt", ios::app | ios::out);
-    patient<<p.fname<<" "<<p.lname<<" "<<p.age<<" "<<p.type<<" "<<p.quantity<<" "<<p.date<<"\n";
+    patient<<p.fname<<" "<<p.lname<<" "<<p.age<<" "<<p.type<<" "<<p.quantity<<" "<<p.Pid<<"\n";
     patient.close();
     blood.open("BloodDetails.txt",ios::app | ios::out);
-    blood<<" "<<p.type<<" "<<p.quantity<<" "<<p.date<<"\n";
+    blood<<" "<<p.type<<" "<<p.quantity<<" "<<p.Pid<<"\n";
     blood.close();
 
     cout<<endl<<TAB<<"Blood Record Added Successfully\n";
@@ -120,15 +120,15 @@ void Display(){
         patient.close();
     }
     else{
-        patient >> p.fname >> p.lname >> p.age >> p.type >> p.quantity >> p.date;
+        patient >> p.fname >> p.lname >> p.age >> p.type >> p.quantity >> p.Pid;
         while(!patient.eof()){
             cout<<TAB<<"Patient Number: "<<count++<<endl;
             cout<<TAB<<"NAME: "<<p.fname<<" "<<p.lname<<endl;
             cout<<TAB<<"AGE: "<<p.age<<endl;
             cout<<TAB<<"BLOOD TYPE: "<<p.type<<endl;
             cout<<TAB<<"QUANTITY: "<<p.quantity<<"(mL)"<<endl;
-            cout<<TAB<<"DATE OF DONATION: "<<p.date<<endl<<endl<<endl;
-            patient >> p.fname >> p.lname >> p.age >> p.type >> p.quantity >> p.date;
+            cout<<TAB<<"Pid "<<p.Pid<<endl<<endl<<endl;
+            patient >> p.fname >> p.lname >> p.age >> p.type >> p.quantity >> p.Pid;
         }
     }
     cout<<TAB<<"|--------------------------------------|"<<endl;
@@ -145,10 +145,10 @@ void CheckBlood(){
         blood.close();
     }
     else{
-        blood >> b.type >> b.quantity >> b.date;
+        blood >> b.type >> b.quantity >> b.Pid;
         while(!blood.eof()){
             bloodMap[b.type] += b.quantity;
-            blood >> b.type >> b.quantity >> b.date;
+            blood >> b.type >> b.quantity >> b.Pid;
         }
     }
     blood.close();
@@ -171,11 +171,11 @@ void SearchPatient(){
     }
     else{
         Person p;
-        patient >> p.fname >> p.lname >> p.age >> p.type >> p.quantity >> p.date;
+        patient >> p.fname >> p.lname >> p.age >> p.type >> p.quantity >> p.Pid;
         while(!patient.eof()){
-            int id = p.date;
+            int id = p.Pid;
             PatientMap.insert({id,p});
-            patient >> p.fname >> p.lname >> p.age >> p.type >> p.quantity >> p.date;
+            patient >> p.fname >> p.lname >> p.age >> p.type >> p.quantity >> p.Pid;
         }
     }
     patient.close();
@@ -194,7 +194,7 @@ void SearchPatient(){
             cout<<TAB<<"AGE: "<<it.second.age<<endl;
             cout<<TAB<<"BLOOD TYPE: "<<it.second.type<<endl;
             cout<<TAB<<"QUANTITY: "<<it.second.quantity<<endl;
-            cout<<TAB<<"DATE of DONATION: "<<it.second.date<<endl;
+            cout<<TAB<<"Pid: "<<it.second.Pid<<endl;
         }
         cout<<endl;
     }
