@@ -11,16 +11,23 @@
 #include <unistd.h>
 #include <unordered_set>
 #include <unordered_map>
+#include <filesystem>
+#include <Json.hpp>
+
 using namespace std;
+using json = nlohmann::json;
+namespace fs = std::filesystem;
 #pragma comment(lib, "user32")
 
 #define TAB "\t\t\t\t\t"
+string PPATH = "./PatientDetails/";
+string BPATH = "./BloodDetails/";
 
 class Blood{
 public:
     string type;
     int quantity;
-    time_t Pid;
+    string Pid;
 };
 
 class Person{
@@ -29,7 +36,7 @@ public:
     int age;
     string type;
     int quantity;
-    time_t Pid;
+    string Pid;
 };
 
 unordered_set<string> bloodType({"O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"});
@@ -95,20 +102,42 @@ quantity:
         cout << "\r\033[A" << TAB << "Enter a valid Blood  Volume" << endl;
         goto quantity;
     }
-    p.Pid = time(0);
+    p.Pid = to_string(time(0));
     b.type = p.type;
     b.quantity = p.quantity;
     b.Pid = p.Pid;
 
-    // Blood Recording to the File
-    fstream patient, blood;
-    patient.open("PatientDetails.txt", ios::app | ios::out);
-    patient << p.fname << " " << p.lname << " " << p.age << " " << p.type << " " << p.quantity << " " << p.Pid << "\n";
-    patient.close();
-    blood.open("BloodDetails.txt", ios::app | ios::out);
-    blood << " " << p.type << " " << p.quantity << " " << p.Pid << "\n";
-    blood.close();
+    string path = PPATH + p.Pid + ".json";
+    fstream file(path, ios::out);
+    // file.open(path,ios::out);
+    if(!file){
+        cout<<TAB<<"ERROR SAVING DATA\n";
+        return;
+    }
+    json j;
+    j["fname"] = p.fname;
+    j["lname"] = p.lname;
+    j["age"] = p.age;
+    j["type"] = p.type;
+    j["quantity"] = p.quantity;
+    j["pid"] = p.Pid;
+    file << j.dump(4);
+    file.close();
 
+    path = BPATH + p.Pid + ".json";
+    fstream fileb(path, ios::out);
+    // file.open(path,ios::out);
+    if(!fileb){
+        cout<<TAB<<"ERROR SAVING DATA\n";
+        return;
+    }
+    json jb;
+    jb["type"] = p.type;
+    jb["quantity"] = p.quantity;
+    jb["pid"] = p.Pid;
+    fileb << jb.dump(4);
+    fileb.close();
+    cout<<TAB<<"PATIENT ID: "<<j["pid"].get<string>()<<endl;
     cout << endl
          << TAB << "Blood Record Added Successfully\n";
     cout << TAB << "|--------------------------------------|" << endl;
@@ -116,50 +145,32 @@ quantity:
 }
 void Display(){
     cout << TAB << "|--------------------------------------|" << endl;
-    fstream patient;
-    Person p;
-    patient.open("PatientDetails.txt", ios::in);
+    string path = PPATH;
     int count = 1;
-    if (!patient){
-        cout << TAB << "No data is Present\n";
-        patient.close();
-    }
-    else{
-        patient >> p.fname >> p.lname >> p.age >> p.type >> p.quantity >> p.Pid;
-        while (!patient.eof()){
-            cout << TAB << "Patient Number: " << count++ << endl;
-            cout << TAB << "NAME: " << p.fname << " " << p.lname << endl;
-            cout << TAB << "AGE: " << p.age << endl;
-            cout << TAB << "BLOOD TYPE: " << p.type << endl;
-            cout << TAB << "QUANTITY: " << p.quantity << "(mL)" << endl;
-            cout << TAB << "Pid " << p.Pid << endl << endl << endl;
-            patient >> p.fname >> p.lname >> p.age >> p.type >> p.quantity >> p.Pid;
-        }
+    for (const auto & file : fs::directory_iterator(path)){
+        fstream filep(file.path(),ios::in);
+        json j;
+        filep>>j;
+        cout << TAB << "Patient Number: " << count++ << endl;
+        cout << TAB << "NAME: " << j["fname"].get<string>() << " " << j["lname"].get<string>() << endl;
+        cout << TAB << "AGE: " << j["age"] << endl;
+        cout << TAB << "BLOOD TYPE: " << j["type"].get<string>() << endl;
+        cout << TAB << "QUANTITY: " << j["quantity"] << "(mL)" << endl;
+        cout << TAB << "Pid " << j["pid"].get<string>() << endl << endl << endl;
     }
     cout << TAB << "|--------------------------------------|" << endl;
     EndCall();
 }
 void CheckBlood(){
     cout << TAB << "|--------------------------------------|" << endl;
-    fstream blood;
     unordered_map<string, int> bloodMap;
-    Blood b;
-    blood.open("BloodDetails.txt", ios::in);
-    if (!blood){
-        cout << TAB << "ERROR OPENING/FINDING RECORDS....TRY AGAIN LATER\n";
-        blood.close();
+    string path = BPATH;
+    for (const auto & file : fs::directory_iterator(path)){
+        fstream filep(file.path(),ios::in);
+        json j;
+        filep>>j;
+        bloodMap[j["type"].get<string>()]+=j["quantity"].get<int>();
     }
-    else{
-        blood >> b.type >> b.quantity >> b.Pid;
-        while (!blood.eof()){
-            bloodMap[b.type] += b.quantity;
-            blood >> b.type >> b.quantity >> b.Pid;
-        }
-    }
-    blood.close();
-    cout << TAB << "Blood Type"
-         << "   "
-         << "Quantity" << endl;
     for (auto it : bloodMap){
         cout << TAB << it.first << " --> " << it.second << "(mL)" << endl;
     }
@@ -169,41 +180,27 @@ void CheckBlood(){
 
 void SearchPatient(){
     cout << TAB << "|--------------------------------------|" << endl;
-    fstream patient;
-    unordered_map<int, Person> PatientMap;
-    patient.open("PatientDetails.txt", ios::in);
-    if (!patient){
-        cout << TAB << "ERROR OPENING/FINDING RECORDS....TRY AGAIN LATER\n";
-        patient.close();
-    }
-    else{
-        Person p;
-        patient >> p.fname >> p.lname >> p.age >> p.type >> p.quantity >> p.Pid;
-        while (!patient.eof()){
-            int id = p.Pid;
-            PatientMap.insert({id, p});
-            patient >> p.fname >> p.lname >> p.age >> p.type >> p.quantity >> p.Pid;
-        }
-    }
-    patient.close();
+    string path = PPATH;
     string name;
     cout << TAB << "Enter the FIRST NAME of the Person: ";
     cin >> name;
     cout << endl;
     transform(name.begin(), name.end(), name.begin(), ::tolower);
     bool found = false;
-    for (auto it : PatientMap){
-        string mapName = it.second.fname;
-        transform(mapName.begin(), mapName.end(), mapName.begin(), ::tolower);
-        if (mapName == name){
+    for (const auto & file : fs::directory_iterator(path)){
+        fstream filep(file.path(),ios::in);
+        json j;
+        filep>>j;
+        string filename = j["fname"];
+        transform(filename.begin(), filename.end(), filename.begin(), ::tolower);
+        if(filename == name){
             found = true;
-            cout << TAB << "NAME: " << it.second.fname << " " << it.second.lname << endl;
-            cout << TAB << "AGE: " << it.second.age << endl;
-            cout << TAB << "BLOOD TYPE: " << it.second.type << endl;
-            cout << TAB << "QUANTITY: " << it.second.quantity << endl;
-            cout << TAB << "Pid: " << it.second.Pid << endl;
+            cout << TAB << "NAME: " << j["fname"].get<string>() << " " << j["lname"].get<string>() << endl;
+            cout << TAB << "AGE: " << j["age"] << endl;
+            cout << TAB << "BLOOD TYPE: " << j["type"].get<string>() << endl;
+            cout << TAB << "QUANTITY: " << j["quantity"] << "(mL)" << endl;
+            cout << TAB << "Pid " << j["pid"].get<string>() << endl << endl << endl;
         }
-        cout << endl;
     }
     if (!found){
         cout << TAB << "ERROR FINDING PATIENT RECORDS\n";
@@ -215,42 +212,55 @@ void SearchPatient(){
 void Login(){
     cout << TAB << "|--------------------------------------|" << endl;
     cout << TAB <<"Enter LOGIN ID"<<endl;
-    int id;
+    string id;
     cout<<TAB;
     cin>>id;
-    fstream patient;
-    unordered_map<int, Person> PatientMap;
-    patient.open("PatientDetails.txt", ios::in);
-    if (!patient){
-        cout << TAB << "ERROR OPENING/FINDING RECORDS....TRY AGAIN LATER\n";
-        patient.close();
-    }
-    else{
-        Person p;
-        patient >> p.fname >> p.lname >> p.age >> p.type >> p.quantity >> p.Pid;
-        while (!patient.eof()){
-            int id = p.Pid;
-            PatientMap.insert({id, p});
-            patient >> p.fname >> p.lname >> p.age >> p.type >> p.quantity >> p.Pid;
+    string path = PPATH;
+    for (const auto & file : fs::directory_iterator(path)){
+        fstream filep(file.path(),ios::in);
+        json j;
+        filep>>j;
+        if(id == j["pid"].get<string>()){
+            cout << TAB << "NAME: " << j["fname"].get<string>() << " " << j["lname"].get<string>() << endl;
+            cout << TAB << "AGE: " << j["age"] << endl;
+            cout << TAB << "BLOOD TYPE: " << j["type"].get<string>() << endl;
+            cout << TAB << "QUANTITY: " << j["quantity"] << "(mL)" << endl;
+            cout << TAB << "Pid " << j["pid"].get<string>() << endl << endl << endl;
         }
     }
-    patient.close();
-    bool found = false;
-    for (auto it : PatientMap){
-        int mapId = it.first;
-        if (mapId == id){
-            found = true;
-            cout << TAB << "NAME: " << it.second.fname << " " << it.second.lname << endl;
-            cout << TAB << "AGE: " << it.second.age << endl;
-            cout << TAB << "BLOOD TYPE: " << it.second.type << endl;
-            cout << TAB << "QUANTITY: " << it.second.quantity << endl;
-            cout << TAB << "Pid: " << it.second.Pid << endl;
-        }
-        cout << endl;
-    }
-    if (!found){
-        cout << TAB << "ERROR FINDING PATIENT RECORDS\n";
-    }
+    // fstream patient;
+    // unordered_map<string, Person> PatientMap;
+    // patient.open("PatientDetails.txt", ios::in);
+    // if (!patient){
+    //     cout << TAB << "ERROR OPENING/FINDING RECORDS....TRY AGAIN LATER\n";
+    //     patient.close();
+    // }
+    // else{
+    //     Person p;
+    //     patient >> p.fname >> p.lname >> p.age >> p.type >> p.quantity >> p.Pid;
+    //     while (!patient.eof()){
+    //         string id = p.Pid;
+    //         PatientMap.insert({id, p});
+    //         patient >> p.fname >> p.lname >> p.age >> p.type >> p.quantity >> p.Pid;
+    //     }
+    // }
+    // patient.close();
+    // bool found = false;
+    // for (auto it : PatientMap){
+    //     string mapId = it.first;
+    //     if (mapId == id){
+    //         found = true;
+    //         cout << TAB << "NAME: " << it.second.fname << " " << it.second.lname << endl;
+    //         cout << TAB << "AGE: " << it.second.age << endl;
+    //         cout << TAB << "BLOOD TYPE: " << it.second.type << endl;
+    //         cout << TAB << "QUANTITY: " << it.second.quantity << endl;
+    //         cout << TAB << "Pid: " << it.second.Pid << endl;
+    //     }
+    //     cout << endl;
+    // }
+    // if (!found){
+    //     cout << TAB << "ERROR FINDING PATIENT RECORDS\n";
+    // }
     cout << TAB << "|--------------------------------------|" << endl;
     EndCall();
 }
