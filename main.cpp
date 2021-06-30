@@ -38,6 +38,7 @@ public:
     string type;
     int quantity;
     string Pid;
+    string time;
 };
 
 unordered_set<string> bloodType({"O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"});
@@ -213,6 +214,35 @@ void SearchPatient(){
     EndCall();
 }
 
+void HospReport(){
+    fstream CSV("HospitalReport.csv", ios::out);
+    CSV << "First Name," << "Last Name," << "Quantity Donated," << "Date and Time," << "Type," << "Patient Id,"<<"\n";
+    for (const auto & file : fs::directory_iterator(PPATH)){
+        fstream filep(file.path(),ios::in);
+        json j;
+        filep>>j;
+        CSV << j["fname"] << ",";
+        CSV << j["lname"] << ",";
+        CSV << j["quantity"] << ",";
+        CSV << j["time"] << ",";
+        CSV << j["type"] << ",";
+        CSV << j["pid"]<<endl;
+    }
+    CSV.close();
+}
+
+void PrintPatientDetails(Person p){
+    fstream CSV(p.Pid+".csv", ios::out);
+    CSV << "First Name," << "Last Name," << "Quantity Donated," << "Date and Time," << "Type," << "Patient Id,"<<"\n";
+    CSV << p.fname << ",";
+    CSV << p.lname << ",";
+    CSV << p.quantity << ",";
+    CSV << p.time << ",";
+    CSV << p.type << ",";
+    CSV << p.Pid<<endl;
+    CSV.close();
+}
+
 void Login(){
     cout << TAB << "|--------------------------------------|" << endl;
     cout << TAB <<"Enter LOGIN ID"<<endl;
@@ -220,9 +250,9 @@ void Login(){
     cout<<TAB;
     cin>>id;
     string path = PPATH;
+    json j;
     for (const auto & file : fs::directory_iterator(path)){
         fstream filep(file.path(),ios::in);
-        json j;
         filep>>j;
         if(id == j["pid"].get<string>()){
             cout << TAB << "NAME: " << j["fname"].get<string>() << " " << j["lname"].get<string>() << endl;
@@ -231,11 +261,32 @@ void Login(){
             cout << TAB << "QUANTITY: " << j["quantity"] << "(mL)" << endl;
             cout << TAB << "TIME: " << j["time"].get<string>() << endl;
             cout << TAB << "Pid " << j["pid"].get<string>() << endl << endl << endl;
+            break;
         }
     }
-
-    cout << TAB << "|--------------------------------------|" << endl;
-    EndCall();
+    cout << TAB << "|--------------------------------------|" << endl << endl <<endl;
+    char pos;
+    cout << TAB << "0->Go Back\n"
+         << TAB << "1->Generate Report\n"
+         << TAB << "2->exit Application\n";
+    cout << TAB;
+    cin >> pos;
+    if (pos == '1'){
+        Person p;
+        p.fname = j["fname"].get<string>();
+        p.lname = j["lname"].get<string>();
+        p.age = j["age"].get<int>();
+        p.Pid = j["pid"].get<string>();
+        p.quantity = j["quantity"].get<int>();
+        p.time = j["time"].get<string>();
+        p.type = j["type"].get<string>();
+        PrintPatientDetails(p);
+        cout<<TAB<< "Report Generated Successfully"<<endl;
+        sleep(1);
+    }
+    if (pos == '2')
+        exit(0);
+    system("cls");
 }
 
 void Admin(){
@@ -250,7 +301,8 @@ void Admin(){
         cout << TAB << "1. Check Blood Availability" << endl;
         cout << TAB << "2. Search Patient" << endl;
         cout << TAB << "3. Display" << endl;
-        cout << TAB << "4. Main Menu" << endl;
+        cout << TAB << "4. Generate Hospital Report" << endl;
+        cout << TAB << "5. Main Menu" << endl;
         cout << TAB << "|--------------------------------------|" << endl;
         char opt;
         cout << TAB;
@@ -269,6 +321,10 @@ void Admin(){
             Display();
             break;
         case '4':
+            system("cls");
+            HospReport();
+            break;
+        case '5':
             system("cls");
             return;
         default:
