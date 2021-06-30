@@ -7,6 +7,7 @@
 #include <regex>
 #include <stdio.h>
 #include <windows.h>
+#include <chrono>
 #include <ctime>
 #include <unistd.h>
 #include <unordered_set>
@@ -106,7 +107,7 @@ quantity:
     b.type = p.type;
     b.quantity = p.quantity;
     b.Pid = p.Pid;
-
+    auto timenow = chrono::system_clock::to_time_t(chrono::system_clock::now());
     string path = PPATH + p.Pid + ".json";
     fstream file(path, ios::out);
     // file.open(path,ios::out);
@@ -121,6 +122,7 @@ quantity:
     j["type"] = p.type;
     j["quantity"] = p.quantity;
     j["pid"] = p.Pid;
+    j["time"] = ctime(&timenow);
     file << j.dump(4);
     file.close();
 
@@ -156,6 +158,7 @@ void Display(){
         cout << TAB << "AGE: " << j["age"] << endl;
         cout << TAB << "BLOOD TYPE: " << j["type"].get<string>() << endl;
         cout << TAB << "QUANTITY: " << j["quantity"] << "(mL)" << endl;
+        cout << TAB << "TIME: " << j["time"].get<string>() << endl;
         cout << TAB << "Pid " << j["pid"].get<string>() << endl << endl << endl;
     }
     cout << TAB << "|--------------------------------------|" << endl;
@@ -199,6 +202,7 @@ void SearchPatient(){
             cout << TAB << "AGE: " << j["age"] << endl;
             cout << TAB << "BLOOD TYPE: " << j["type"].get<string>() << endl;
             cout << TAB << "QUANTITY: " << j["quantity"] << "(mL)" << endl;
+            cout << TAB << "TIME " << j["time"].get<string>() << endl;
             cout << TAB << "Pid " << j["pid"].get<string>() << endl << endl << endl;
         }
     }
@@ -225,42 +229,11 @@ void Login(){
             cout << TAB << "AGE: " << j["age"] << endl;
             cout << TAB << "BLOOD TYPE: " << j["type"].get<string>() << endl;
             cout << TAB << "QUANTITY: " << j["quantity"] << "(mL)" << endl;
+            cout << TAB << "TIME: " << j["time"].get<string>() << endl;
             cout << TAB << "Pid " << j["pid"].get<string>() << endl << endl << endl;
         }
     }
-    // fstream patient;
-    // unordered_map<string, Person> PatientMap;
-    // patient.open("PatientDetails.txt", ios::in);
-    // if (!patient){
-    //     cout << TAB << "ERROR OPENING/FINDING RECORDS....TRY AGAIN LATER\n";
-    //     patient.close();
-    // }
-    // else{
-    //     Person p;
-    //     patient >> p.fname >> p.lname >> p.age >> p.type >> p.quantity >> p.Pid;
-    //     while (!patient.eof()){
-    //         string id = p.Pid;
-    //         PatientMap.insert({id, p});
-    //         patient >> p.fname >> p.lname >> p.age >> p.type >> p.quantity >> p.Pid;
-    //     }
-    // }
-    // patient.close();
-    // bool found = false;
-    // for (auto it : PatientMap){
-    //     string mapId = it.first;
-    //     if (mapId == id){
-    //         found = true;
-    //         cout << TAB << "NAME: " << it.second.fname << " " << it.second.lname << endl;
-    //         cout << TAB << "AGE: " << it.second.age << endl;
-    //         cout << TAB << "BLOOD TYPE: " << it.second.type << endl;
-    //         cout << TAB << "QUANTITY: " << it.second.quantity << endl;
-    //         cout << TAB << "Pid: " << it.second.Pid << endl;
-    //     }
-    //     cout << endl;
-    // }
-    // if (!found){
-    //     cout << TAB << "ERROR FINDING PATIENT RECORDS\n";
-    // }
+
     cout << TAB << "|--------------------------------------|" << endl;
     EndCall();
 }
