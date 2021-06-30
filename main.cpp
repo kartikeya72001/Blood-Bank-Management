@@ -14,6 +14,7 @@
 #include <unordered_map>
 #include <filesystem>
 #include <Json.hpp>
+#include <cstdio>
 
 using namespace std;
 using json = nlohmann::json;
@@ -23,6 +24,7 @@ namespace fs = std::filesystem;
 #define TAB "\t\t\t\t\t"
 string PPATH = "./PatientDetails/";
 string BPATH = "./BloodDetails/";
+string RPATH = "./BloodRequest/";
 
 class Blood{
 public:
@@ -69,33 +71,35 @@ void EndCall(){
     system("cls");
 }
 
-void Donate(){
+void Donate(Person p, bool newPatient = false){
     cout << TAB << "|--------------------------------------|" << endl;
     cout << TAB << "\t\t"
          << "Donate" << endl;
     cout << TAB << "|--------------------------------------|" << endl
          << endl;
     Blood b;
-    Person p;
+    // Person p;
     cout << TAB << "|--------------------------------------|" << endl;
     cout << TAB << "Enter Personal Details\n";
-    cout << TAB << "FIRST NAME: ";
-    cin >> p.fname;
-    cout << TAB << "LAST NAME: ";
-    cin >> p.lname;
-age:
-    cout << TAB << "AGE: ";
-    cin >> p.age;
-    if (p.age < 16 || p.age > 60){
-        cout << "\r\033[A" << TAB << "Enter an age between 16 and 60" << endl;
-        goto age;
-    }
-bloodType:
-    cout << TAB << "BLOOD TYPE: ";
-    cin >> p.type;
-    if (bloodType.find(p.type) == bloodType.end()){
-        cout << "\r\033[A" << TAB << "Enter a valid Blood Type" << endl;
-        goto bloodType;
+    if(newPatient){
+        cout << TAB << "FIRST NAME: ";
+        cin >> p.fname;
+        cout << TAB << "LAST NAME: ";
+        cin >> p.lname;
+    age:
+        cout << TAB << "AGE: ";
+        cin >> p.age;
+        if (p.age < 16 || p.age > 60){
+            cout << "\r\033[A" << TAB << "Enter an age between 16 and 60" << endl;
+            goto age;
+        }
+    bloodType:
+        cout << TAB << "BLOOD TYPE: ";
+        cin >> p.type;
+        if (bloodType.find(p.type) == bloodType.end()){
+            cout << "\r\033[A" << TAB << "Enter a valid Blood Type" << endl;
+            goto bloodType;
+        }
     }
 quantity:
     cout << TAB << "Quantity (mL): ";
@@ -111,7 +115,6 @@ quantity:
     auto timenow = chrono::system_clock::to_time_t(chrono::system_clock::now());
     string path = PPATH + p.Pid + ".json";
     fstream file(path, ios::out);
-    // file.open(path,ios::out);
     if(!file){
         cout<<TAB<<"ERROR SAVING DATA\n";
         return;
@@ -123,7 +126,9 @@ quantity:
     j["type"] = p.type;
     j["quantity"] = p.quantity;
     j["pid"] = p.Pid;
-    j["time"] = ctime(&timenow);
+    char *date = ctime(&timenow);
+    date[strlen(date)-1] = '\0';
+    j["time"] = date;
     file << j.dump(4);
     file.close();
 
@@ -165,7 +170,7 @@ void Display(){
     cout << TAB << "|--------------------------------------|" << endl;
     EndCall();
 }
-void CheckBlood(){
+unordered_map<string, int> CheckBlood(){
     cout << TAB << "|--------------------------------------|" << endl;
     unordered_map<string, int> bloodMap;
     string path = BPATH;
@@ -179,6 +184,7 @@ void CheckBlood(){
         cout << TAB << it.first << " --> " << it.second << "(mL)" << endl;
     }
     cout << TAB << "|--------------------------------------|" << endl;
+    return bloodMap;
     EndCall();
 }
 
@@ -228,7 +234,20 @@ void HospReport(){
         CSV << j["type"] << ",";
         CSV << j["pid"]<<endl;
     }
+    for (const auto & file : fs::directory_iterator(RPATH)){
+        fstream filep(file.path(),ios::in);
+        json j;
+        filep>>j;
+        CSV << j["fname"] << ",";
+        CSV << j["lname"] << ",";
+        CSV << j["quantity"] << ",";
+        CSV << j["time"] << ",";
+        CSV << j["type"] << ",";
+        CSV << j["pid"]<<endl;
+    }
     CSV.close();
+    cout<<TAB<<"Report Generated Successfully"<<endl;
+    sleep(1);
 }
 
 void PrintPatientDetails(Person p){
@@ -241,6 +260,62 @@ void PrintPatientDetails(Person p){
     CSV << p.type << ",";
     CSV << p.Pid<<endl;
     CSV.close();
+}
+
+void RequestBlood(Person p, bool newPatient = false){
+    cout << TAB << "|--------------------------------------|" << endl;
+    if(newPatient){
+        cout << TAB << "FIRST NAME: ";
+        cin >> p.fname;
+        cout << TAB << "LAST NAME: ";
+        cin >> p.lname;
+    wrongage:
+        cout << TAB << "AGE: ";
+        cin >> p.age;
+        if (p.age < 0 || p.age > 100){
+            cout << "\r\033[A" << TAB << "Enter an age between 16 and 60" << endl;
+            goto wrongage;
+        }
+    wrongbloodType:
+        cout << TAB << "BLOOD TYPE: ";
+        cin >> p.type;
+        if (bloodType.find(p.type) == bloodType.end()){
+            cout << "\r\033[A" << TAB << "Enter a valid Blood Type" << endl;
+            goto wrongbloodType;
+        }
+    }
+    cout<<TAB<<"Enter Required Blood Amount: ";
+wrongquantity:
+    cin>>p.quantity;
+    if (p.quantity < 100 || p.quantity > 1200){
+        cout << "\r\033[A" << TAB << "Enter a valid Blood  Volume" << endl;
+        cout<<TAB;
+        goto wrongquantity;
+    }
+    p.Pid = to_string(time(0));
+    auto timenow = chrono::system_clock::to_time_t(chrono::system_clock::now());
+    json j;
+    j["fname"] = p.fname;
+    j["lname"] = p.lname;
+    j["age"] = p.age;
+    j["type"] = p.type;
+    j["quantity"] = -p.quantity;
+    j["pid"] = p.Pid;
+    char *date = ctime(&timenow);
+    date[strlen(date)-1] = '\0';
+    j["time"] = date;
+    string path = RPATH + p.Pid + ".json";
+    fstream file(path, ios::out);
+    if(!file){
+        cout<<TAB<<"REQUEST ERROR....TRY AGAIN LATER\n";
+        return;
+    }
+    file << j.dump(4);
+    cout << TAB << "|--------------------------------------|" << endl;
+    cout<<TAB<< "Request Generated Successfully"<<endl;
+    sleep(1);
+    file.close();
+    system("cls");
 }
 
 void Login(){
@@ -268,7 +343,9 @@ void Login(){
     char pos;
     cout << TAB << "0->Go Back\n"
          << TAB << "1->Generate Report\n"
-         << TAB << "2->exit Application\n";
+         << TAB << "2->Request Blood\n"
+         << TAB << "3->Donate Blood\n"
+         << TAB << "4->exit Application\n";
     cout << TAB;
     cin >> pos;
     if (pos == '1'){
@@ -284,9 +361,83 @@ void Login(){
         cout<<TAB<< "Report Generated Successfully"<<endl;
         sleep(1);
     }
-    if (pos == '2')
+    else if(pos=='2'){
+        Person p;
+        p.fname = j["fname"].get<string>();
+        p.lname = j["lname"].get<string>();
+        p.age = j["age"].get<int>();
+        p.type = j["type"].get<string>();
+        RequestBlood(p);
+    }
+    else if(pos=='3'){
+        Person p;
+        p.fname = j["fname"].get<string>();
+        p.lname = j["lname"].get<string>();
+        p.age = j["age"].get<int>();
+        p.type = j["type"].get<string>();
+        Donate(p);
+    }
+    else if (pos == '4')
         exit(0);
     system("cls");
+}
+
+void Requests(){
+    unordered_map<string,Person> requestMap;
+    string path = RPATH;
+    for (const auto & file : fs::directory_iterator(path)){
+        fstream filep(file.path(),ios::in);
+        json j;
+        filep>>j;
+        Person p;
+        p.fname = j["fname"].get<string>();
+        p.lname = j["lname"].get<string>();
+        p.age = j["age"].get<int>();
+        p.quantity = j["quantity"].get<int>();
+        p.Pid = j["pid"].get<string>();
+        p.time = j["time"].get<string>();
+        p.type = j["type"].get<string>();
+        requestMap.insert({p.Pid,p});
+    }
+    for(auto it: requestMap){
+        cout<<TAB<<"PID: "<<it.first<<endl;
+        cout<<TAB<<"NAME: "<<it.second.fname<<" "<<it.second.lname<<endl;
+        cout<<TAB<<"AGE: "<<it.second.age<<endl;
+        cout<<TAB<<"QUANTITY: "<<it.second.quantity<<endl;
+        cout<<TAB<<"TYPE: "<<it.second.type<<endl<<endl;
+    }
+    cout<<endl;
+    auto bloodMap = CheckBlood();
+regrant:
+    cout<<TAB<<"ENTER the PID to grant BLOOD (Enter -1 to exit())"<<endl;
+    string id;
+    cout<<TAB;
+    cin>>id;
+    if(id=="-1"){
+        system("cls");
+        return;
+    }
+    if(bloodMap[requestMap[id].type] > abs(requestMap[id].quantity)){
+        path = BPATH + id + ".json";
+        json j;
+        j["pid"] = id;
+        j["quantity"] = requestMap[id].quantity;
+        j["type"] = requestMap[id].type;
+        fstream file(path,ios::out);
+        file << j.dump(4);
+        path = RPATH + id + ".json";
+        char deletepath[path.size() + 1];
+        strcpy(deletepath, path.c_str());
+        remove(deletepath);
+        cout<<TAB<<"Request Completed Successfully"<<endl;
+        sleep(1);
+        system("cls");
+    }
+    else{
+        cout<<"\r\033[A"<<TAB<<"NOT ENOUGH BLOOD\n";
+        goto regrant;
+    }
+
 }
 
 void Admin(){
@@ -302,7 +453,8 @@ void Admin(){
         cout << TAB << "2. Search Patient" << endl;
         cout << TAB << "3. Display" << endl;
         cout << TAB << "4. Generate Hospital Report" << endl;
-        cout << TAB << "5. Main Menu" << endl;
+        cout << TAB << "5. View Requests" << endl;
+        cout << TAB << "6. Main Menu" << endl;
         cout << TAB << "|--------------------------------------|" << endl;
         char opt;
         cout << TAB;
@@ -326,6 +478,10 @@ void Admin(){
             break;
         case '5':
             system("cls");
+            Requests();
+            break;
+        case '6':
+            system("cls");
             return;
         default:
             wrongChoice = true;
@@ -337,6 +493,7 @@ void Admin(){
 }
 
 void Patient(){
+    Person p;
     cout << TAB << "|--------------------------------------|" << endl;
     cout << TAB <<"\t\t"<<"PATIENT LOGIN"<<endl;
     cout << TAB << "|--------------------------------------|" << endl;
@@ -350,8 +507,9 @@ void Patient(){
              << "BLOOD BANK" << endl;
         cout << TAB << "Choose from the following Options" << endl;
         cout << TAB << "1. Donate" << endl;
-        cout << TAB << "2. Login" << endl;
-        cout << TAB << "3. Main Menu" << endl;
+        cout << TAB << "2. Request" << endl;
+        cout << TAB << "3. Login" << endl;
+        cout << TAB << "4. Main Menu" << endl;
         cout << TAB << "|--------------------------------------|" << endl;
         char opt;
         cout << TAB;
@@ -359,13 +517,17 @@ void Patient(){
         switch (opt){
         case '1':
             system("cls");
-            Donate();
+            Donate(p,true);
             break;
         case '2':
             system("cls");
-            Login();
+            RequestBlood(p,true);
             break;
         case '3':
+            system("cls");
+            Login();
+            break;
+        case '4':
             system("cls");
             return;
         default:
