@@ -96,6 +96,7 @@ void Donate(Person p, bool newPatient = false){
     bloodType:
         cout << TAB << "BLOOD TYPE: ";
         cin >> p.type;
+        transform(p.type.begin(), p.type.end(), p.type.begin(), ::toupper);
         if (bloodType.find(p.type) == bloodType.end()){
             cout << "\r\033[A" << TAB << "Enter a valid Blood Type" << endl;
             goto bloodType;
@@ -308,6 +309,7 @@ void RequestBlood(Person p, bool newPatient = false){
     wrongbloodType:
         cout << TAB << "BLOOD TYPE: ";
         cin >> p.type;
+        transform(p.type.begin(), p.type.end(), p.type.begin(), ::toupper);
         if (bloodType.find(p.type) == bloodType.end()){
             cout << "\r\033[A" << TAB << "Enter a valid Blood Type" << endl;
             goto wrongbloodType;

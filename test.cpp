@@ -3,10 +3,11 @@
 using namespace std;
 
 // Driver Code
-int main()
-{
+int main(){
+    // setlocale(LC_ALL, "en_US.utf8");
     // 0 for background Color(Black)
     // A for text color(Green)
+    // freopen("output.txt","w",stdout);
     system("Color F5");
 
     // Print any message
