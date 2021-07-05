@@ -167,10 +167,22 @@ void Display(){
         cout << TAB << "TIME: " << j["time"].get<string>() << endl;
         cout << TAB << "Pid " << j["pid"].get<string>() << endl << endl << endl;
     }
+    for (const auto & file : fs::directory_iterator(RPATH)){
+        fstream filep(file.path(),ios::in);
+        json j;
+        filep>>j;
+        cout << TAB << "Patient Number: " << count++ << endl;
+        cout << TAB << "NAME: " << j["fname"].get<string>() << " " << j["lname"].get<string>() << endl;
+        cout << TAB << "AGE: " << j["age"] << endl;
+        cout << TAB << "BLOOD TYPE: " << j["type"].get<string>() << endl;
+        cout << TAB << "QUANTITY: " << j["quantity"] << "(mL)" << endl;
+        cout << TAB << "TIME: " << j["time"].get<string>() << endl;
+        cout << TAB << "Pid " << j["pid"].get<string>() << endl << endl << endl;
+    }
     cout << TAB << "|--------------------------------------|" << endl;
     EndCall();
 }
-unordered_map<string, int> CheckBlood(){
+unordered_map<string, int> CheckBlood(bool endcall = true){
     cout << TAB << "|--------------------------------------|" << endl;
     unordered_map<string, int> bloodMap;
     string path = BPATH;
@@ -184,8 +196,9 @@ unordered_map<string, int> CheckBlood(){
         cout << TAB << it.first << " --> " << it.second << "(mL)" << endl;
     }
     cout << TAB << "|--------------------------------------|" << endl;
+    if(endcall)
+        EndCall();
     return bloodMap;
-    EndCall();
 }
 
 void SearchPatient(){
@@ -198,6 +211,22 @@ void SearchPatient(){
     transform(name.begin(), name.end(), name.begin(), ::tolower);
     bool found = false;
     for (const auto & file : fs::directory_iterator(path)){
+        fstream filep(file.path(),ios::in);
+        json j;
+        filep>>j;
+        string filename = j["fname"];
+        transform(filename.begin(), filename.end(), filename.begin(), ::tolower);
+        if(filename == name){
+            found = true;
+            cout << TAB << "NAME: " << j["fname"].get<string>() << " " << j["lname"].get<string>() << endl;
+            cout << TAB << "AGE: " << j["age"] << endl;
+            cout << TAB << "BLOOD TYPE: " << j["type"].get<string>() << endl;
+            cout << TAB << "QUANTITY: " << j["quantity"] << "(mL)" << endl;
+            cout << TAB << "TIME " << j["time"].get<string>() << endl;
+            cout << TAB << "Pid " << j["pid"].get<string>() << endl << endl << endl;
+        }
+    }
+    for (const auto & file : fs::directory_iterator(RPATH)){
         fstream filep(file.path(),ios::in);
         json j;
         filep>>j;
@@ -407,7 +436,7 @@ void Requests(){
         cout<<TAB<<"TYPE: "<<it.second.type<<endl<<endl;
     }
     cout<<endl;
-    auto bloodMap = CheckBlood();
+    auto bloodMap = CheckBlood(false);
 regrant:
     cout<<TAB<<"ENTER the PID to grant BLOOD (Enter -1 to exit())"<<endl;
     string id;
