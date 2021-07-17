@@ -572,7 +572,7 @@ void Patient(){
 
 int main(int argc, char const *argv[]){
     ::SendMessage(::GetConsoleWindow(), WM_SYSKEYDOWN, VK_RETURN, 0x20000000);
-    // Loading();
+    Loading();
     bool wrongChoice = false;
     while (true){
         if (wrongChoice)
