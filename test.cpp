@@ -1,17 +1,25 @@
 #include <iostream>
-#include <windows.h>
+#include <conio.h>
+#include "HeaderFiles/Hash.h"
 using namespace std;
 
-// Driver Code
 int main(){
-    // setlocale(LC_ALL, "en_US.utf8");
-    // 0 for background Color(Black)
-    // A for text color(Green)
-    // freopen("output.txt","w",stdout);
-    system("Color F5");
-
-    // Print any message
-    cout << "Geeks For Geeks!";
+    Hash h;
+    string pwd;
+    char ch;
+    ch = getch();
+    while(ch!='\r'){
+        cout<<"*";
+        pwd+=ch;
+        ch = getch();
+        if(ch=='\r')
+            break;
+    }
+    cout<<endl;
+    // for(int i=0;i<5;i++){
+    //     cin>>pwd[i];
+    //     cout<<h.HashString(pwd[i])<<endl;
+    // }
     return 0;
 }
 /*

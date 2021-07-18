@@ -15,6 +15,7 @@
 #include <filesystem>
 #include <Json.hpp>
 #include <cstdio>
+#include "HeaderFiles/PassWordHandler.h"
 
 using namespace std;
 using json = nlohmann::json;
@@ -152,6 +153,7 @@ quantity:
     cout << TAB << "|--------------------------------------|" << endl;
     EndCall();
 }
+
 void Display(){
     cout << TAB << "|--------------------------------------|" << endl;
     string path = PPATH;
@@ -183,6 +185,7 @@ void Display(){
     cout << TAB << "|--------------------------------------|" << endl;
     EndCall();
 }
+
 unordered_map<string, int> CheckBlood(bool endcall = true){
     cout << TAB << "|--------------------------------------|" << endl;
     unordered_map<string, int> bloodMap;
@@ -471,7 +474,24 @@ regrant:
 
 }
 
+bool AdminLogin(){
+    PassWordHandler pwh;
+    cout<< TAB <<"Enter Password: ";
+    string userpwd = pwh.InputPwd();
+    string filepwd = pwh.readPwd();
+    cout<<TAB<<userpwd<<" and "<<filepwd<<endl;
+    if(userpwd == filepwd)
+        return true;
+    return false;
+}
+
 void Admin(){
+    if(!AdminLogin()){
+        cout<<TAB<<"Incorrect Password";
+        sleep(1);
+        system("cls");
+        return;
+    }
     bool wrongChoice = false;
     while (true){
         if (wrongChoice)
@@ -572,7 +592,7 @@ void Patient(){
 
 int main(int argc, char const *argv[]){
     ::SendMessage(::GetConsoleWindow(), WM_SYSKEYDOWN, VK_RETURN, 0x20000000);
-    Loading();
+    // Loading();
     bool wrongChoice = false;
     while (true){
         if (wrongChoice)
