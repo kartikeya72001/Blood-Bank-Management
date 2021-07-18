@@ -81,18 +81,24 @@ private:
         vector<int> vans = GenSubsets(v);
         int n = vans.size();
         for(int i=0;i<vans.size();i++){
-            vans[i] = (vans[i]*(i+1))%177;
+            vans[i] = (vans[i]*(i+1))%120;
         }
 
         string str1 = "";
         for(int i=0;i<n;i++){
             int index = rand()%n;
-            str1+=char(vans[index]);
+            if(char(vans[index])== ' ')
+                str1+=".";
+            else
+                str1+=char(vans[index]);
         }
         string str2 = "";
         for(int i=0;i<n;i++){
             int index = rand()%n;
-            str2+=char(vans[index]);
+            if(char(vans[index])== ' ')
+                str2+=".";
+            else
+                str2+=char(vans[index]);
         }
 
         string start = DecToHex(n);
@@ -108,7 +114,7 @@ private:
         int dec = HexToDec(hex);
         // cout<<"Decimal: "<<dec<<endl;
         // cout<<"Pwd size: "<<pwd.size()<<endl;
-        string act_pwd_hashed = pwd.substr(dec+1,dec-1);
+        string act_pwd_hashed = pwd.substr(dec+1,n-2*(dec+1));
         // cout<<"Hashed Pwd: "<<act_pwd_hashed<<endl;
         string pwd_decrypted = hashDecrypt(act_pwd_hashed);
         // cout<<"Decrypted Pwd: "<<pwd_decrypted<<endl;

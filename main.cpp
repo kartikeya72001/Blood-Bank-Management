@@ -493,7 +493,7 @@ bool AdminLogin(){
 void Admin(){
     if(!AdminLogin()){
         cout<<TAB<<"Incorrect Password";
-        sleep(1);
+        sleep(5);
         system("cls");
         return;
     }

@@ -13,8 +13,10 @@ private:
         Hash2 h_;
         string hashed_pwd;
         fstream file;
-        file.open("./Passwords/Admin/Admin.txt", ios::in);
+        file.open("./Passwords/Admin/Admin.txt", ios::in | ios::binary);
         file >> hashed_pwd;
+        // cout<<"Pwd Read from file: "<<hashed_pwd<<endl;
+        // cout<<hashed_pwd.size()<<endl;
         return h.HashString(h_.Decrypt(hashed_pwd));
         // return h.HashString(hashed_pwd);
     }
@@ -47,8 +49,9 @@ private:
         cout<<endl;
         Hash2 h_;
         string hashed_new_pwd = h_.Encrypt(pwd);
-        //Add to File
-        cout<<"New Hashed Password: "<<hashed_new_pwd<<endl;
+        fstream file("./Passwords/Admin/Admin.txt",ios::out | ios::binary);
+        file<<hashed_new_pwd<<endl;
+        // cout<<"New Hashed Password: "<<hashed_new_pwd<<endl;
         return;
     }
 public:
