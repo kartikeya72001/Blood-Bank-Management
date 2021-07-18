@@ -50,17 +50,31 @@ private:
         return h.HashString(pwd);
     }
     void InputNewPwd(){
-        string pwd;
+        char parr[100];
         char ch;
-        ch = getch();
-        while(ch!='\r'){
-            cout<<"*";
-            pwd+=ch;
+        int i=0;
+        while(1){
             ch = getch();
-            if(ch=='\r')
+            if (ch == '\r')
+            {
                 break;
+            }
+            if (ch == '\b')
+            {
+                cout << '\b';
+                --i;
+                ch = '\0';
+                parr[i] = '\0';
+                cout << ' ' << '\b';
+                continue;
+            }
+            parr[i] = ch;
+            ch = '*';
+            cout << ch;
+            ++i;
         }
         cout<<endl;
+        string pwd(parr);
         Hash2 h_;
         string hashed_new_pwd = h_.Encrypt(pwd);
         fstream file("./Passwords/Admin/Admin.txt",ios::out | ios::binary);

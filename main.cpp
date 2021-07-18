@@ -493,7 +493,7 @@ bool AdminLogin(){
 void Admin(){
     if(!AdminLogin()){
         cout<<TAB<<"Incorrect Password";
-        sleep(5);
+        sleep(1);
         system("cls");
         return;
     }
@@ -637,3 +637,4 @@ int main(int argc, char const *argv[]){
     }
     return 0;
 }
+//Cur Pwd: hello
