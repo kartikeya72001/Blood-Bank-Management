@@ -12,10 +12,8 @@ private:
         // Hash2 h_
         string hashed_pwd;
         fstream file;
-        file.open("../Passwords/Admin/Admin.txt", ios::in);
+        file.open("./Passwords/Admin/Admin.txt", ios::in);
         file >> hashed_pwd;
-        file.close();
-        cout<<"Input from file: "<<hashed_pwd<<endl;
         // return h.HashString(h_.Unhash(hashed_pwd));
         return h.HashString(hashed_pwd);
     }

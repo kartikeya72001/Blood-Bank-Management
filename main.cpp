@@ -479,7 +479,6 @@ bool AdminLogin(){
     cout<< TAB <<"Enter Password: ";
     string userpwd = pwh.InputPwd();
     string filepwd = pwh.readPwd();
-    cout<<TAB<<userpwd<<" and "<<filepwd<<endl;
     if(userpwd == filepwd)
         return true;
     return false;
