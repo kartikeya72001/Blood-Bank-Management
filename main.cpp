@@ -474,6 +474,12 @@ regrant:
 
 }
 
+void ChangePwd(){
+    PassWordHandler pwh;
+    cout<< TAB <<"Enter Password: ";
+    pwh.ResetPwd();
+}
+
 bool AdminLogin(){
     PassWordHandler pwh;
     cout<< TAB <<"Enter Password: ";
@@ -504,7 +510,8 @@ void Admin(){
         cout << TAB << "3. Display" << endl;
         cout << TAB << "4. Generate Hospital Report" << endl;
         cout << TAB << "5. View Requests" << endl;
-        cout << TAB << "6. Main Menu" << endl;
+        cout << TAB << "6. Change Password" << endl;
+        cout << TAB << "7. Main Menu" << endl;
         cout << TAB << "|--------------------------------------|" << endl;
         char opt;
         cout << TAB;
@@ -531,6 +538,10 @@ void Admin(){
             Requests();
             break;
         case '6':
+            system("cls");
+            ChangePwd();
+            break;
+        case '7':
             system("cls");
             return;
         default:
