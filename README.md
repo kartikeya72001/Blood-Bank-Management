@@ -20,6 +20,7 @@ On execution of the software, the following options are presented:
 
 ### Admin Login
 This method takes in the admin password and sends it to a dynamic encryption hashing algorithm to encrypt the password while decrypting the original stored password and dynamically re-hashing it to match with the entered password.
+
 ![Login Encryption System](https://github.com/kartikeya72001/Blood-Bank-Management/blob/master/Images/AdminLogin.jpg?raw=true)
 
 ## Admin Functionality
@@ -42,6 +43,7 @@ This method exports a comma-separated file for all the registered patients in th
 This function enables the admin to manage all the recipient requests that are registered in the system. all the requests are displayed along with the available quantities of blood.
 #### Change Admin Password
 This method takes admin input via a private variable encrypts the input and stores the input into a file for future references.
+
 ![Password Reset](https://github.com/kartikeya72001/Blood-Bank-Management/blob/master/Images/ResetPwd.jpg?raw=true)
 
 ### Patient Menu
