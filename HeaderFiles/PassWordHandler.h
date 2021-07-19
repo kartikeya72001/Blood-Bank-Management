@@ -9,8 +9,8 @@ using namespace std;
 class PassWordHandler{
 private:
     string Reader(){
-        Hash h;
-        Hash2 h_;
+        Hash h; //Irrevsible
+        Hash2 h_; //Reversible
         string hashed_pwd;
         fstream file;
         file.open("./Passwords/Admin/Admin.txt", ios::in | ios::binary);
