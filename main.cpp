@@ -15,6 +15,8 @@
 #include <filesystem>
 #include <Json.hpp>
 #include <cstdio>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include "HeaderFiles/PassWordHandler.h"
 
 using namespace std;
@@ -600,9 +602,40 @@ void Patient(){
     EndCall();
 }
 
+void CreateRequiredFolders(){
+    struct stat buffer;
+    if(!(stat (PPATH.c_str(), &buffer) == 0)){
+        mkdir(PPATH.c_str());
+    }
+    if(!(stat (BPATH.c_str(), &buffer) == 0)){
+        mkdir(BPATH.c_str());
+    }
+    if(!(stat (RPATH.c_str(), &buffer) == 0)){
+        mkdir(RPATH.c_str());
+    }
+    string PatientReports = "PatientReports", Passwords = "Passwords", Admin = "Passwords/Admin";
+    if(!(stat (PatientReports.c_str(), &buffer) == 0)){
+        mkdir(PatientReports.c_str());
+    }
+    if(!(stat (Passwords.c_str(), &buffer) == 0)){
+        mkdir(Passwords.c_str());
+    }
+    if(!(stat (Admin.c_str(), &buffer) == 0)){
+        mkdir(Admin.c_str());
+    }
+    string pwdfile = "Passwords/Admin/Admin.txt";
+    if(!(stat (pwdfile.c_str(), &buffer) == 0)){
+        fstream file(pwdfile, ios::out);
+        file<<"3abcdbjagabc1";
+    }
+}
+
 int main(int argc, char const *argv[]){
     ::SendMessage(::GetConsoleWindow(), WM_SYSKEYDOWN, VK_RETURN, 0x20000000);
-    // Loading();
+    Loading();
+
+    CreateRequiredFolders();
+
     bool wrongChoice = false;
     while (true){
         if (wrongChoice)
