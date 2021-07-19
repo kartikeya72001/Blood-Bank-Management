@@ -284,7 +284,7 @@ void HospReport(){
 }
 
 void PrintPatientDetails(Person p){
-    fstream CSV(p.Pid+".csv", ios::out);
+    fstream CSV("./PatientReports/"+p.Pid+".csv", ios::out);
     CSV << "First Name," << "Last Name," << "Quantity Donated," << "Date and Time," << "Type," << "Patient Id,"<<"\n";
     CSV << p.fname << ",";
     CSV << p.lname << ",";
