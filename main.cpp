@@ -362,6 +362,7 @@ void Login(){
     cin>>id;
     string path = PPATH;
     json j;
+    bool flag = false;
     for (const auto & file : fs::directory_iterator(path)){
         fstream filep(file.path(),ios::in);
         filep>>j;
@@ -372,8 +373,15 @@ void Login(){
             cout << TAB << "QUANTITY: " << j["quantity"] << "(mL)" << endl;
             cout << TAB << "TIME: " << j["time"].get<string>() << endl;
             cout << TAB << "Pid " << j["pid"].get<string>() << endl << endl << endl;
+            flag = true;
             break;
         }
+    }
+    if(!flag){
+        cout << TAB << "Patient Not Found" << endl;
+        sleep(1);
+        system("cls");
+        return;
     }
     cout << TAB << "|--------------------------------------|" << endl << endl <<endl;
     char pos;
